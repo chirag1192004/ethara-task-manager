@@ -11,7 +11,8 @@ import models
 import schemas
 
 # --- SECURITY CONFIG ---
-SECRET_KEY = "ethara_super_secret_key_for_assignment" # Change in production
+import os
+SECRET_KEY = os.environ.get("SECRET_KEY", "ethara_super_secret_key_for_local") # Set this in Railway Variables
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24  # 24 Hours
 
