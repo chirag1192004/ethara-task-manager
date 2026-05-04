@@ -20,6 +20,8 @@ export default function AdminDashboard() {
   // Task Assignment State
   const [selectedProjectId, setSelectedProjectId] = useState("");
   const [taskTitle, setTaskTitle] = useState("");
+  const [taskDescription, setTaskDescription] = useState("");
+  const [taskPriority, setTaskPriority] = useState("Medium");
   const [taskDueDate, setTaskDueDate] = useState("");
   const [selectedAssignees, setSelectedAssignees] = useState([]);
   const [taskError, setTaskError] = useState("");
@@ -91,10 +93,14 @@ export default function AdminDashboard() {
       await createTask(
         parseInt(selectedProjectId),
         taskTitle,
+        taskDescription,
+        taskPriority,
         dueDateTime,
         selectedAssignees
       );
       setTaskTitle("");
+      setTaskDescription("");
+      setTaskPriority("Medium");
       setTaskDueDate("");
       setSelectedAssignees([]);
       setSelectedProjectId("");
@@ -129,6 +135,13 @@ export default function AdminDashboard() {
       </div>
     );
   }
+
+  const allTasks = projects.flatMap(p => p.tasks);
+  const totalTasks = allTasks.length;
+  const tasksToDo = allTasks.filter(t => t.status === "PENDING").length;
+  const tasksInProgress = allTasks.filter(t => t.status === "IN_PROGRESS" || t.status === "IN_REVIEW").length;
+  const tasksDone = allTasks.filter(t => t.status === "COMPLETED").length;
+  const overdueTasks = allTasks.filter(t => new Date(t.due_date) < new Date() && t.status !== "COMPLETED").length;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 pb-12">
@@ -176,6 +189,30 @@ export default function AdminDashboard() {
             </div>
           </section>
         )}
+
+        {/* DASHBOARD METRICS */}
+        <section className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="p-4 rounded-xl bg-gray-800/50 border border-gray-700/50">
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-1">Total Tasks</p>
+            <p className="text-2xl font-bold text-white">{totalTasks}</p>
+          </div>
+          <div className="p-4 rounded-xl bg-gray-800/50 border border-gray-700/50">
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-1">By Status</p>
+            <div className="text-xs text-gray-300 space-y-0.5 mt-1.5">
+              <div className="flex justify-between"><span>To Do:</span><span className="text-white">{tasksToDo}</span></div>
+              <div className="flex justify-between"><span>In Progress:</span><span className="text-white">{tasksInProgress}</span></div>
+              <div className="flex justify-between"><span>Done:</span><span className="text-white">{tasksDone}</span></div>
+            </div>
+          </div>
+          <div className="p-4 rounded-xl bg-gray-800/50 border border-gray-700/50">
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-wider mb-1">Active Members</p>
+            <p className="text-2xl font-bold text-blue-400">{memberUsers.length}</p>
+          </div>
+          <div className="p-4 rounded-xl bg-red-500/5 border border-red-500/20">
+            <p className="text-xs text-red-400/80 font-medium uppercase tracking-wider mb-1">Overdue Tasks</p>
+            <p className="text-2xl font-bold text-red-400">{overdueTasks}</p>
+          </div>
+        </section>
 
         {/* PROJECTS SECTION */}
         <section>
@@ -258,14 +295,39 @@ export default function AdminDashboard() {
                 </div>
 
                 <div>
-                  <label className="block mb-1.5 text-sm font-medium text-gray-300">Due Date</label>
-                  <input
-                    type="date"
-                    required
-                    value={taskDueDate}
-                    onChange={(e) => setTaskDueDate(e.target.value)}
-                    className="w-full px-4 py-2.5 rounded-lg bg-gray-700/50 border border-gray-600/50 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                  <label className="block mb-1.5 text-sm font-medium text-gray-300">Description</label>
+                  <textarea
+                    rows={2}
+                    value={taskDescription}
+                    onChange={(e) => setTaskDescription(e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-lg bg-gray-700/50 border border-gray-600/50 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all resize-none"
+                    placeholder="Optional details..."
                   />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block mb-1.5 text-sm font-medium text-gray-300">Priority</label>
+                    <select
+                      value={taskPriority}
+                      onChange={(e) => setTaskPriority(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-lg bg-gray-700/50 border border-gray-600/50 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                    >
+                      <option value="Low">Low</option>
+                      <option value="Medium">Medium</option>
+                      <option value="High">High</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block mb-1.5 text-sm font-medium text-gray-300">Due Date</label>
+                    <input
+                      type="date"
+                      required
+                      value={taskDueDate}
+                      onChange={(e) => setTaskDueDate(e.target.value)}
+                      className="w-full px-4 py-2.5 rounded-lg bg-gray-700/50 border border-gray-600/50 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -316,6 +378,7 @@ export default function AdminDashboard() {
                 <thead className="bg-gray-800/80">
                   <tr>
                     <th className="px-5 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Task</th>
+                    <th className="px-5 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Priority</th>
                     <th className="px-5 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Project</th>
                     <th className="px-5 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Assignees</th>
                     <th className="px-5 py-3 text-xs font-medium text-gray-400 uppercase tracking-wider">Status</th>
@@ -333,6 +396,11 @@ export default function AdminDashboard() {
                           <td className="px-5 py-3">
                             <div className="text-sm text-white">{task.title}</div>
                             {isOverdue && <div className="text-xs text-red-400 mt-1">⚠️ Overdue</div>}
+                          </td>
+                          <td className="px-5 py-3">
+                            <span className={`text-xs px-2 py-0.5 rounded ${task.priority === 'High' ? 'bg-red-500/20 text-red-400' : task.priority === 'Low' ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-700 text-gray-300'}`}>
+                              {task.priority}
+                            </span>
                           </td>
                           <td className="px-5 py-3 text-sm text-gray-400">{project.title}</td>
                           <td className="px-5 py-3 text-sm text-gray-400 max-w-[200px] truncate" title={assigneeNames}>

@@ -107,6 +107,8 @@ def create_task(
 
     new_task = models.Task(
         title=task_data.title,
+        description=task_data.description,
+        priority=task_data.priority,
         due_date=task_data.due_date,
         project_id=project_id,
         status=models.TaskStatus.PENDING,

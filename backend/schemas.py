@@ -25,6 +25,8 @@ class UserOut(UserBase):
 # --- TASK SCHEMAS ---
 class TaskBase(BaseModel):
     title: str
+    description: Optional[str] = None
+    priority: str = "Medium"
     due_date: datetime
 
 class TaskCreate(TaskBase):

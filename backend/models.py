@@ -56,6 +56,8 @@ class Task(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, index=True)
+    description = Column(Text, nullable=True)
+    priority = Column(String, default="Medium")
     status = Column(Enum(TaskStatus), default=TaskStatus.PENDING)
     due_date = Column(DateTime)
     project_id = Column(Integer, ForeignKey("projects.id"))

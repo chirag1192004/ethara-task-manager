@@ -61,11 +61,11 @@ export async function createProject(title, description) {
   return handleResponse(response);
 }
 
-export async function createTask(projectId, title, dueDate, assigneeIds) {
+export async function createTask(projectId, title, description, priority, dueDate, assigneeIds) {
   const response = await fetch(`${API_BASE}/projects/${projectId}/tasks`, {
     method: "POST",
     headers: getHeaders(),
-    body: JSON.stringify({ title, due_date: dueDate, assignee_ids: assigneeIds }),
+    body: JSON.stringify({ title, description, priority, due_date: dueDate, assignee_ids: assigneeIds }),
   });
   return handleResponse(response);
 }
