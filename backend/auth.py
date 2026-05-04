@@ -40,30 +40,42 @@ def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     if db_user:
         raise HTTPException(status_code=400, detail="Email already registered")
     
+    # Verification logic: members are auto-verified.
+    # Admins require verification unless they are the very first admin.
+    is_verified = True
+    if user.role == models.RoleEnum.ADMIN:
+        admin_exists = db.query(models.User).filter(models.User.role == models.RoleEnum.ADMIN).first()
+        if admin_exists:
+            is_verified = False
+
     # Create new user
     hashed_password = get_password_hash(user.password)
     new_user = models.User(
         name=user.name,
         email=user.email,
         password_hash=hashed_password,
-        role=user.role
+        role=user.role,
+        is_verified=is_verified
     )
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
     return new_user
 
-# (You can delete the class LoginRequest we made earlier)
-
 @router.post("/login")
 def login(credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
-    # Notice we use credentials.username here, because that is what Swagger sends!
     user = db.query(models.User).filter(models.User.email == credentials.username).first()
     
     if not user or not verify_password(credentials.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials",
+        )
+        
+    if not user.is_verified:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Account pending admin verification",
         )
     
     access_token = create_access_token(
@@ -77,6 +89,7 @@ def login(credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depe
         "user": {
             "id": user.id,
             "name": user.name,
-            "role": user.role
+            "role": user.role,
+            "is_verified": user.is_verified
         }
     }

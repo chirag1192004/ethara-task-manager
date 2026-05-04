@@ -1,55 +1,62 @@
 from pydantic import BaseModel, EmailStr
+from typing import List, Optional
 from datetime import datetime
-from typing import Optional, List
 from models import RoleEnum, TaskStatus
 
 # --- USER SCHEMAS ---
-class UserCreate(BaseModel):
-    name: str
-    email: EmailStr
-    password: str
-    role: RoleEnum = RoleEnum.MEMBER
-
-class UserOut(BaseModel):
-    id: int
+class UserBase(BaseModel):
     name: str
     email: EmailStr
     role: RoleEnum
 
+class UserCreate(UserBase):
+    password: str
+
+class UserOut(UserBase):
+    id: int
+    is_verified: bool
+    perfect_tasks: int
+    delayed_tasks: int
+    underperforming_tasks: int
+
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 # --- TASK SCHEMAS ---
-class TaskCreate(BaseModel):
+class TaskBase(BaseModel):
     title: str
     due_date: datetime
-    assigned_to: int
 
-class TaskUpdateStatus(BaseModel):
-    status: TaskStatus
+class TaskCreate(TaskBase):
+    assignee_ids: List[int]
 
-class TaskOut(BaseModel):
+class TaskOut(TaskBase):
     id: int
-    title: str
     status: TaskStatus
-    due_date: datetime
     project_id: int
-    assigned_to: int
+    assignees: List[UserOut]
 
     class Config:
-        from_attributes = True
+        orm_mode = True
+
+class TaskStatusUpdate(BaseModel):
+    status: TaskStatus
+
+class TaskReview(BaseModel):
+    performance: str # "perfect", "delayed", or "underperforming"
 
 # --- PROJECT SCHEMAS ---
-class ProjectCreate(BaseModel):
+class ProjectBase(BaseModel):
     title: str
-    description: str
+    description: Optional[str] = None
 
-class ProjectOut(BaseModel):
+class ProjectCreate(ProjectBase):
+    pass
+
+class ProjectOut(ProjectBase):
     id: int
-    title: str
-    description: str
     admin_id: int
     tasks: List[TaskOut] = []
 
     class Config:
-        from_attributes = True
+        orm_mode = True
