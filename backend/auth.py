@@ -1,3 +1,4 @@
+from fastapi.security import OAuth2PasswordRequestForm
 from datetime import datetime, timedelta
 from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -52,14 +53,12 @@ def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db.refresh(new_user)
     return new_user
 
-# Using standard JSON input instead of form data to make React integration easier
-class LoginRequest(schemas.BaseModel):
-    email: str
-    password: str
+# (You can delete the class LoginRequest we made earlier)
 
 @router.post("/login")
-def login(credentials: LoginRequest, db: Session = Depends(get_db)):
-    user = db.query(models.User).filter(models.User.email == credentials.email).first()
+def login(credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
+    # Notice we use credentials.username here, because that is what Swagger sends!
+    user = db.query(models.User).filter(models.User.email == credentials.username).first()
     
     if not user or not verify_password(credentials.password, user.password_hash):
         raise HTTPException(
@@ -67,7 +66,6 @@ def login(credentials: LoginRequest, db: Session = Depends(get_db)):
             detail="Invalid credentials",
         )
     
-    # Embed the user ID and Role directly into the token for easy RBAC later
     access_token = create_access_token(
         data={"sub": str(user.id), "role": user.role.value},
         expires_delta=timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
