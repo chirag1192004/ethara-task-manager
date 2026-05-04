@@ -1,15 +1,15 @@
 Ethara AI - Team Task Manager
 =============================
 
-Welcome to the Ethara AI Team Task Manager! This is a professional full-stack web application designed for task assignment, progress tracking, and performance analytics.
+Welcome to the Ethara AI Team Task Manager! This is a professional full-stack web application designed for collaborative task assignment, progress tracking, and performance analytics. This project serves as a comprehensive solution comparable to simplified versions of tools like Trello or Asana.
 
 PROJECT DESCRIPTION
 -------------------
 The Ethara AI Task Manager is built to help organizations efficiently manage their projects and evaluate member performance. It supports a strict Role-Based Access Control (RBAC) system distinguishing between 'ADMIN' and 'MEMBER' roles. 
 
-Admins have full organizational oversight. They can create broad projects, dispatch granular tasks to multiple team members simultaneously, and evaluate completed tasks to build performance profiles (tracking perfect, delayed, and underperforming assignments). 
+Admins have full organizational oversight. They can create broad projects, dispatch granular tasks (complete with Descriptions and Priority levels) to multiple team members simultaneously, and evaluate completed tasks to build performance profiles. 
 
-Members receive a focused Kanban-style dashboard where they can instantly view their assigned tasks, identify overdue priorities, and update task statuses dynamically up to the review phase. 
+The dashboard provides top-level metrics, calculating Total Tasks, Tasks by Status, Active Members, and Overdue Tasks at a glance. Members receive a focused Kanban-style dashboard where they can instantly view their assigned tasks, identify overdue priorities, and update task statuses dynamically up to the review phase. 
 
 The entire platform is secured via JSON Web Tokens (JWT) and utilizes a modern, responsive user interface.
 
@@ -18,15 +18,17 @@ TECH STACK
 * Backend: Python, FastAPI, PostgreSQL, SQLAlchemy (ORM), Pydantic
 * Frontend: JavaScript, React (Vite), Tailwind CSS, React Router
 * Authentication: JWT (JSON Web Tokens) with Passlib (Bcrypt)
+* Deployment: Railway
 
 CORE FEATURES
 -------------
+* User Authentication: Secure Signup/Login with password hashing.
 * Role-Based Access Control: Granular permissions separating Admins and Members.
-* Admin Verification: Secondary admin accounts require manual approval by an existing admin to enhance system security.
-* Project & Task CRUD: Create and manage projects. Assign a single task to multiple members.
+* Project Management: Create and manage projects.
+* Advanced Task Management: Tasks include Title, Description, Due Date, and Priority. Assign a single task to multiple members.
 * Dynamic Task Lifecycle: Tasks move through PENDING, IN_PROGRESS, IN_REVIEW, and COMPLETED.
+* Comprehensive Dashboard: Real-time metric cards (Total Tasks, Tasks by Status, Overdue Tasks).
 * Performance Analytics: The system automatically tracks and scores members based on task completion quality.
-* Overdue Notifications: Visual warnings for tasks that have lapsed their due date.
 
 LOCAL SETUP INSTRUCTIONS
 ------------------------
@@ -51,4 +53,4 @@ PRODUCTION DEPLOYMENT (Railway)
 This project is fully configured for deployment on Railway, utilizing PostgreSQL for the production database.
 - A Procfile is included in the backend for automatic Railway deployment.
 - The database.py script automatically parses Railway's DATABASE_URL environment variable.
-- The frontend dynamically routes API requests using the VITE_API_URL environment variable, falling back to localhost during development.
+- The frontend dynamically routes API requests using the VITE_API_URL environment variable.
